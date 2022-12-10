@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json.schemastore.org/package.json",
+	"name": "kime-web",
+	"version": "0.1.0",
+	"license": "AGPL-3.0-or-later",
+	"scripts": {
+		"serve": "vite",
+		"build": "vite build",
+		"vite": "vite"
+	},
+	"type": "module",
+	"packageManager": "pnpm@7.18.1",
+	"engines": {
+		"node": ">= 19.2.0"
+	},
+	"engineStrict": true,
+	"devDependencies": {
+		"vite": "^4.0.0",
+		"vite-plugin-wasm": "^3.1.0"
+	}
+}

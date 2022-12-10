@@ -1,0 +1,27 @@
+[package]
+name = 'kime-web'
+version = '0.1.0'
+authors = ['Xnuk Shuman <xnuk+kime@xnu.kr>']
+edition = '2021'
+license = 'GPL-3.0-or-later'
+rust-version = '1.65.0'
+
+[lib]
+crate-type = ['cdylib']
+
+[dependencies]
+# wasm-bindgen = '0.2.83'
+js-sys = '0.3.60'
+serde_yaml = '0.9.14'
+
+[dependencies.kime-engine-backend]
+git = 'https://github.com/Riey/kime'
+branch = 'develop'
+
+[dependencies.kime-engine-backend-hangul]
+git = 'https://github.com/Riey/kime'
+branch = 'develop'
+
+[dependencies.web-sys]
+version = '0.3.60'
+# features = ['KeyboardEvent']

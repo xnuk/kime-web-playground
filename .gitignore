@@ -1,0 +1,4 @@
+/js/dist
+/js/node_modules
+/rust/pkg
+/rust/target
