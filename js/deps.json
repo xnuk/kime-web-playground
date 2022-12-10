@@ -1,0 +1,6 @@
+{
+	"imports": {
+		"esbuild": "https://deno.land/x/esbuild@v0.17.3/mod.js",
+		"std/": "https://deno.land/std@0.173.0/"
+	}
+}
