@@ -1,5 +1,5 @@
 use kime_engine_backend::{Key, KeyCode, ModifierState};
-// use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::prelude::wasm_bindgen;
 
 /// KeyEvent.code to keycode slice, *sorted* by &str.
 const CODE_KEYCODE: [(&str, KeyCode); 94] = [
@@ -102,7 +102,7 @@ const CODE_KEYCODE: [(&str, KeyCode); 94] = [
 #[no_mangle]
 pub static CONTROL: u32 = ModifierState::CONTROL.bits();
 
-// #[wasm_bindgen]
+#[wasm_bindgen]
 pub struct Modifier {
 	pub ctrl: bool,
 	pub alt: bool,

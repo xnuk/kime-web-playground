@@ -10,7 +10,7 @@ rust-version = '1.65.0'
 crate-type = ['cdylib']
 
 [dependencies]
-# wasm-bindgen = '0.2.83'
+wasm-bindgen = '0.2.83'
 js-sys = '0.3.60'
 serde_yaml = '0.9.14'
 

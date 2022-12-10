@@ -216,6 +216,7 @@ dependencies = [
  "kime-engine-backend",
  "kime-engine-backend-hangul",
  "serde_yaml",
+ "wasm-bindgen",
  "web-sys",
 ]
 

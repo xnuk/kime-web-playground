@@ -1,4 +1,4 @@
-import { Maemmae } from '../rust/pkg/kime_web.js'
+import { Maemmae } from '../rust/pkg'
 
 const mam = new Maemmae(
 	JSON.stringify({
@@ -64,8 +64,8 @@ document.body.append(input, br, preedit, br.cloneNode(), commit)
 
 input.addEventListener('keydown', ev => {
 	if (mam.press_key(ev)) {
-		// ev.preventDefault()
-		// ev.stopPropagation()
+		ev.preventDefault()
+		ev.stopPropagation()
 	} else {
 		mam.clear_preedit()
 	}

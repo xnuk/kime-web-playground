@@ -6,7 +6,7 @@ use kime_engine_backend_hangul::{
 	HangulConfig, HangulData, HangulEngine, Layout,
 };
 
-// use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::web_keycode::Modifier;
 
@@ -17,17 +17,16 @@ fn print_error<T>(x: Result<T, impl fmt::Display>) -> Result<T, String> {
 	x.map_err(|err| err.to_string())
 }
 
-// #[wasm_bindgen]
+#[wasm_bindgen]
 pub struct Maemmae {
 	engine: HangulEngine,
 	config: HangulData,
 	buf: String,
 }
 
-// #[wasm_bindgen]
+#[wasm_bindgen]
 impl Maemmae {
-	// #[wasm_bindgen(constructor)]
-	#[no_mangle]
+	#[wasm_bindgen(constructor)]
 	pub fn new(yaml: &str, layout: &str) -> Result<Maemmae, String> {
 		let config: HangulConfig = print_error(serde_yaml::from_str(yaml))?;
 		let layout = print_error(Layout::load_from(layout))?;
