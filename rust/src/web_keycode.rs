@@ -99,44 +99,49 @@ const CODE_KEYCODE: [(&str, KeyCode); 94] = [
 	("Tab", KeyCode::Tab),
 ];
 
-#[no_mangle]
-pub static CONTROL: u32 = ModifierState::CONTROL.bits();
+const MS_CONTROL: u32 = ModifierState::CONTROL.bits();
+const MS_ALT: u32 = ModifierState::ALT.bits();
+const MS_SHIFT: u32 = ModifierState::SHIFT.bits();
+const MS_SUPER: u32 = ModifierState::SUPER.bits();
 
-#[wasm_bindgen]
-pub struct Modifier {
-	pub ctrl: bool,
-	pub alt: bool,
-	pub shift: bool,
+#[repr(transparent)]
+pub struct Modifier(pub(crate) u32);
 
-	// did u know that you can never use 'super'
-	pub win: bool,
+pub const SHIFT: u8 = 1;
+pub const CONTROL: u8 = 2;
+pub const SUPER: u8 = 4;
+pub const ALT: u8 = 8;
+
+#[wasm_bindgen(typescript_custom_section)]
+const FUCK: &str = "const enum Modifier {
+	SHIFT = 1,
+	CONTROL = 2,
+	SUPER = 4,
+	ALT = 8,
+}";
+
+impl From<u8> for Modifier {
+	fn from(x: u8) -> Self {
+		let mut out = 0u32;
+		if x & SHIFT != 0 {
+			out |= MS_SHIFT;
+		}
+		if x & CONTROL != 0 {
+			out |= MS_CONTROL;
+		}
+		if x & SUPER != 0 {
+			out |= MS_SUPER;
+		}
+		if x & ALT != 0 {
+			out |= MS_ALT;
+		}
+		Modifier(out)
+	}
 }
 
 impl From<Modifier> for ModifierState {
-	fn from(
-		Modifier {
-			ctrl,
-			alt,
-			shift,
-			win,
-		}: Modifier,
-	) -> Self {
-		let mut modifier = ModifierState::empty();
-
-		if ctrl {
-			modifier |= ModifierState::CONTROL;
-		}
-		if alt {
-			modifier |= ModifierState::ALT;
-		}
-		if shift {
-			modifier |= ModifierState::SHIFT;
-		}
-		if win {
-			modifier |= ModifierState::SUPER;
-		}
-
-		modifier
+	fn from(Modifier(x): Modifier) -> Self {
+		ModifierState::from_bits_truncate(x)
 	}
 }
 

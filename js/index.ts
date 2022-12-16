@@ -1,5 +1,13 @@
 import { Maemmae } from '../rust/pkg'
 
+// 니미 진짜
+const enum Modifier {
+	SHIFT = 1,
+	CONTROL = 2,
+	SUPER = 4,
+	ALT = 8,
+}
+
 const mam = new Maemmae(
 	JSON.stringify({
 		layout: 'xnuk',
@@ -62,8 +70,17 @@ commit.placeholder = 'commit'
 
 document.body.append(input, br, preedit, br.cloneNode(), commit)
 
+const getModifier = (ev: KeyboardEvent): number => {
+	let bits = 0
+	if (ev.shiftKey) bits |= Modifier.SHIFT
+	if (ev.ctrlKey) bits |= Modifier.CONTROL
+	if (ev.altKey) bits |= Modifier.ALT
+	if (ev.metaKey) bits |= Modifier.SUPER
+	return bits
+}
+
 input.addEventListener('keydown', ev => {
-	if (mam.press_key(ev)) {
+	if (mam.press_key(ev.code, getModifier(ev))) {
 		ev.preventDefault()
 		ev.stopPropagation()
 	} else {

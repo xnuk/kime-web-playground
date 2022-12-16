@@ -1,14 +1,12 @@
 use alloc::string::{String, ToString};
 use core::fmt;
 
+use wasm_bindgen::prelude::wasm_bindgen;
+
 use kime_engine_backend::InputEngineBackend;
 use kime_engine_backend_hangul::{
 	HangulConfig, HangulData, HangulEngine, Layout,
 };
-
-use wasm_bindgen::prelude::wasm_bindgen;
-
-use crate::web_keycode::Modifier;
 
 use super::web_keycode::from_code_with_modifiers;
 
@@ -43,18 +41,16 @@ impl Maemmae {
 		})
 	}
 
-	pub fn press_key(
-		&mut self,
-		code: &str,
-		modifier: Modifier,
-	) -> Option<bool> {
-		Some(self.engine.press_key(
-			&self.config,
-			from_code_with_modifiers(code, modifier)?,
-			&mut self.buf,
-		))
+	#[inline]
+	pub fn press_key(&mut self, code: &str, modifier: u8) -> bool {
+		if let Some(key) = from_code_with_modifiers(code, modifier.into()) {
+			self.engine.press_key(&self.config, key, &mut self.buf)
+		} else {
+			false
+		}
 	}
 
+	#[inline]
 	pub fn clear_preedit(&mut self) {
 		self.engine.clear_preedit(&mut self.buf)
 	}
