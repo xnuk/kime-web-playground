@@ -9,7 +9,7 @@
 		"vite": "vite"
 	},
 	"type": "module",
-	"packageManager": "pnpm@7.18.1",
+	"packageManager": "pnpm@7.18.2",
 	"engines": {
 		"node": ">= 19.2.0"
 	},
