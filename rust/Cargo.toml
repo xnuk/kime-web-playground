@@ -10,7 +10,7 @@ rust-version = '1.65.0'
 crate-type = ['cdylib']
 
 [dependencies]
-serde_yaml = '0.9.17'
+serde_yaml = '0.9.25'
 
 [dependencies.kime-engine-backend]
 git = 'https://github.com/Riey/kime'
@@ -21,10 +21,10 @@ git = 'https://github.com/Riey/kime'
 branch = 'develop'
 
 [dependencies.web-sys]
-version = '0.3.60'
+version = '0.3.64'
 # features = ['KeyboardEvent']
 
 [dependencies.wasm-bindgen]
-version = '0.2.83'
+version = '0.2.87'
 default-features = false
 features = []
