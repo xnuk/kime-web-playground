@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use kime_engine_backend_hangul::{HangulData, Layout};
+use kime_engine_backend_hangul::{builtin_layouts, HangulData, Layout};
 use kime_engine_core::{
 	Config, EngineConfig, InputCategory, InputEngine, InputMode, InputResult,
 	Key,
@@ -28,7 +28,8 @@ fn parse_config(config: &str) -> serde_yaml::Result<Config> {
 
 	let layouts = layouts.into_iter().map(|(k, v)| (k.into(), v.into()));
 
-	let hangul_data = HangulData::new(&engine.hangul, layouts);
+	let hangul_data =
+		HangulData::new(&engine.hangul, builtin_layouts().chain(layouts));
 
 	let mut config = Config::new(engine);
 	config.hangul_data = hangul_data;
