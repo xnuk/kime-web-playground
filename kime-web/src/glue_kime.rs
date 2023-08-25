@@ -20,19 +20,23 @@ impl From<HangulLayoutData> for Layout {
 #[derive(Deserialize)]
 struct RawConfig {
 	engine: EngineConfig,
-	layouts: HashMap<String, HangulLayoutData>,
+	layouts: Option<HashMap<String, HangulLayoutData>>,
 }
 
 fn parse_config(config: &str) -> serde_yaml::Result<Config> {
 	let RawConfig { engine, layouts } = serde_yaml::from_str(config)?;
 
-	let layouts = layouts.into_iter().map(|(k, v)| (k.into(), v.into()));
+	let hangul_data = layouts.map(|layouts| {
+		let layouts = layouts.into_iter().map(|(k, v)| (k.into(), v.into()));
 
-	let hangul_data =
-		HangulData::new(&engine.hangul, builtin_layouts().chain(layouts));
+		HangulData::new(&engine.hangul, builtin_layouts().chain(layouts))
+	});
 
 	let mut config = Config::new(engine);
-	config.hangul_data = hangul_data;
+	if let Some(hangul_data) = hangul_data {
+		config.hangul_data = hangul_data;
+	}
+
 	Ok(config)
 }
 
