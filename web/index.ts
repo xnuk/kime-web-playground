@@ -1,8 +1,9 @@
 import { install, initialized } from 'kime-web'
 
 const configInput = document.getElementById('config') as HTMLTextAreaElement
-const layoutInput = document.getElementById('scratchpad') as HTMLTextAreaElement
+const textInput = document.getElementById('scratchpad') as HTMLTextAreaElement
 const errorSlot = document.getElementById('error') as HTMLDivElement
+const status = document.getElementById('status') as HTMLDivElement
 
 const config = `
 engine:
@@ -70,7 +71,7 @@ configInput.defaultValue = config
 
 const instantiate = (config: string) => {
 	try {
-		const ret = install(config, layoutInput)
+		const ret = install(config, textInput)
 		errorSlot.textContent = ''
 		return ret
 	} catch (err: unknown) {
@@ -96,3 +97,25 @@ initialized.then(() => {
 		instance = instantiate(configInput.value)
 	})
 })
+
+textInput.addEventListener('kimeinputcategorychange', e => {
+	const category = (e as any).detail as 'latin' | 'hangul'
+	if (status.textContent !== category) {
+		status.textContent = category
+		status.animate([{ opacity: 0.75, display: 'block' }, { opacity: 0 }], {
+			duration: 2000,
+			iterations: 1,
+			easing: 'ease-in',
+		})
+	}
+})
+
+declare global {
+	const SERVE: boolean
+}
+
+if (SERVE) {
+	new EventSource('/esbuild').addEventListener('change', () =>
+		location.reload(),
+	)
+}

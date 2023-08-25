@@ -49,6 +49,8 @@ impl Engine {
 		Engine::install_stop_composite_listener(&borrowed, "mousedown");
 		Engine::install_key_listener(&borrowed, "keydown", Engine::on_keydown);
 
+		borrowed.map(|v| v.dispatch_category_change_event().ok());
+
 		Ok(MountedIME(ret))
 	}
 

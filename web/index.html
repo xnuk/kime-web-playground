@@ -64,6 +64,22 @@
 				grid-area: scratchpad;
 				font-family: sans-serif;
 			}
+
+			#status {
+				position: fixed;
+				top: 50vh;
+				left: 50vw;
+				transform: translate(-50%, -50%);
+				font-size: 2rem;
+				font-family: monospace;
+
+				padding: 2rem 3rem;
+				outline: 0.5rem currentcolor solid;
+				border-radius: 2rem;
+				pointer-events: none;
+
+				opacity: 0;
+			}
 		</style>
 	</head>
 	<body>
@@ -80,6 +96,7 @@
 				placeholder="아무거나 치세요"
 				autofocus
 			></textarea>
+			<div id="status" role="status" aria-live="polite"></div>
 		</main>
 	</body>
 </html>
