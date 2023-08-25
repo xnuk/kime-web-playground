@@ -3,6 +3,12 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="preload"
+			href="./kime-web_bg.wasm"
+			as="fetch"
+			type="application/wasm"
+		/>
 		<title>kime web playground</title>
 		<script type="module" src="./index.js"></script>
 		<style>
@@ -75,7 +81,11 @@
 				spellcheck="false"
 			></textarea>
 			<div id="error"></div>
-			<textarea id="scratchpad" placeholder="아무거나 치세요"></textarea>
+			<textarea
+				id="scratchpad"
+				placeholder="아무거나 치세요"
+				autofocus
+			></textarea>
 		</main>
 	</body>
 </html>
