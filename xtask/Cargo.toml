@@ -1,0 +1,26 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+duct = '0.13.6'
+anyhow = '1.0.75'
+wasm-bindgen-cli-support = '0.2.87'
+serde_json = '1.0.105'
+notify-debouncer-mini = '0.4.1'
+cargo_metadata = '0.17.0'
+clearscreen = '2.0.1'
+regex-lite = '0.1.0'
+
+[dependencies.clap]
+version = '4.4.0'
+features = ['derive', 'cargo', 'env']
+
+[dependencies.serde]
+version = '1.0.185'
+features = ['derive']
+
+[[bin]]
+name = 'xtask'
+path = 'main.rs'

@@ -1,0 +1,51 @@
+[package]
+name = 'kime-web'
+version = '0.1.0'
+authors = ['Xnuk Shuman <xnuk+kime@xnu.kr>']
+edition = '2021'
+license = 'GPL-3.0-or-later'
+rust-version = '1.65.0'
+
+[lib]
+crate-type = ['cdylib']
+
+[dependencies]
+serde_yaml = '0.9.25'
+gloo-events = '0.2.0'
+wee_alloc = '0.4.5'
+
+[dependencies.serde]
+version = '1.0.185'
+features = ['derive']
+
+[dependencies.kime-engine-core]
+git = 'https://github.com/xnuk/kime'
+branch = 'core-features'
+default-features = false
+features = []
+
+[dependencies.kime-engine-backend]
+git = 'https://github.com/xnuk/kime'
+branch = 'core-features'
+
+[dependencies.kime-engine-backend-hangul]
+git = 'https://github.com/xnuk/kime'
+branch = 'core-features'
+
+[dependencies.web-sys]
+version = '0.3.64'
+features = [
+    'KeyboardEvent',
+    'HtmlElement',
+    'console',
+    'CustomEventInit',
+    'CustomEvent',
+]
+
+[dependencies.js-sys]
+version = '0.3.64'
+
+[dependencies.wasm-bindgen]
+version = '0.2.87'
+default-features = false
+features = []

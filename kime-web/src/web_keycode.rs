@@ -1,5 +1,5 @@
 use kime_engine_backend::{Key, KeyCode, ModifierState};
-use wasm_bindgen::prelude::wasm_bindgen;
+use web_sys::KeyboardEvent;
 
 /// KeyEvent.code to keycode slice, *sorted* by &str.
 const CODE_KEYCODE: [(&str, KeyCode); 94] = [
@@ -112,14 +112,6 @@ pub const CONTROL: u8 = 2;
 pub const SUPER: u8 = 4;
 pub const ALT: u8 = 8;
 
-#[wasm_bindgen(typescript_custom_section)]
-const FUCK: &str = "const enum Modifier {
-	SHIFT = 1,
-	CONTROL = 2,
-	SUPER = 4,
-	ALT = 8,
-}";
-
 impl From<u8> for Modifier {
 	fn from(x: u8) -> Self {
 		let mut out = 0u32;
@@ -134,6 +126,25 @@ impl From<u8> for Modifier {
 		}
 		if x & ALT != 0 {
 			out |= MS_ALT;
+		}
+		Modifier(out)
+	}
+}
+
+impl<'a> From<&'a KeyboardEvent> for Modifier {
+	fn from(event: &'a KeyboardEvent) -> Self {
+		let mut out = 0u32;
+		if event.shift_key() {
+			out |= MS_SHIFT
+		}
+		if event.ctrl_key() {
+			out |= MS_CONTROL
+		}
+		if event.alt_key() {
+			out |= MS_ALT
+		}
+		if event.meta_key() {
+			out |= MS_SUPER
 		}
 		Modifier(out)
 	}
@@ -157,4 +168,15 @@ pub fn from_code(code: &str) -> Option<KeyCode> {
 #[inline]
 pub fn from_code_with_modifiers(code: &str, modifier: Modifier) -> Option<Key> {
 	from_code(code).map(|code| Key::new(code, modifier.into()))
+}
+
+#[inline]
+pub fn from_keyboard_event(event: &KeyboardEvent) -> Option<Key> {
+	// if IME processes this
+	if event.key().to_ascii_lowercase() == "process" || event.key_code() == 229
+	{
+		return None;
+	}
+
+	from_code_with_modifiers(&event.code(), Modifier::from(event))
 }

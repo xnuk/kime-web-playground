@@ -1,35 +1,54 @@
 import * as ESBuild from 'esbuild'
-import {
-	isAbsolute,
-	join as pathJoin,
-	dirname,
-	fromFileUrl,
-	resolve as pathResolve,
-} from 'std/path/mod.ts'
-import { parse as flagParse } from 'std/flags/mod.ts'
 
-const resolve = (path: string) =>
-	fromFileUrl(new URL(path, import.meta.resolve('./')))
+import { readFile, mkdir, realpath } from 'node:fs/promises'
+import { isAbsolute, join as pathJoin, dirname } from 'node:path'
 
-const { readFile, readTextFile, realPath, mkdir } = Deno
+interface RenamedMap {
+	readonly module: Readonly<Record<string, string>>
+	readonly functions: Readonly<Record<string, string>>
+}
+
+const getRenamedModule = (r: RenamedMap | null, id: string) => ({
+	id,
+	original: (r && r.module[id]) || id,
+})
+
+const getRenamedFunc = (r: RenamedMap | null, id: string) => ({
+	id,
+	original: (r && r.functions[id]) || id,
+})
 
 const makeImports = (
 	imports: readonly WebAssembly.ModuleImportDescriptor[],
+	renamedMap: RenamedMap | null = null,
 ): { readonly head: string; readonly body: string } => {
-	const map = Object.create(null) as { [key: string]: string[] }
-	imports.forEach(entry => (map[entry.module] ||= []).push(entry.name))
-	const entries = Object.entries(map)
-	const importEntries = entries.map(([mod, items], index) => {
-		const modPath = JSON.stringify(mod)
+	const map = Object.create(null) as {
+		[key: string]: {
+			meta: { id: string; original: string }
+			data: { id: string; original: string }[]
+		}
+	}
+	for (const { module, name } of imports) {
+		const data = (map[module] ||= {
+			meta: getRenamedModule(renamedMap, module),
+			data: [],
+		}).data
+
+		data.push(getRenamedFunc(renamedMap, name))
+	}
+
+	const values = Object.values(map)
+	const importEntries = values.map(({ meta: mod, data }, index) => {
 		const name = '$wasm_import_' + index
-		const head = `import * as ${name} from ${modPath}`
-		const bodyRaw = items
-			.map(key => {
-				const id = JSON.stringify(key)
-				return `[${id}]: ${name}[${id}]`
+		const head = `import * as ${name} from ${JSON.stringify(mod.original)}`
+		const bodyRaw = data
+			.map(entry => {
+				const id = JSON.stringify(entry.id)
+				const original = JSON.stringify(entry.original)
+				return `[${id}]: ${name}[${original}]`
 			})
-			.join(', ')
-		const body = `[${modPath}]: {${bodyRaw}}`
+			.join(', \n')
+		const body = `[${JSON.stringify(mod.id)}]: {${bodyRaw}}`
 		return { head, body }
 	})
 
@@ -41,11 +60,15 @@ const makeImports = (
 
 const makeExports = (
 	exports: readonly WebAssembly.ModuleExportDescriptor[],
+	renamedMap: RenamedMap | null = null,
 ): { readonly head: string; readonly body: string } => {
-	const entries = exports.map(({ name }) => ({
-		head: `export let ${name};`,
-		body: `${name} = $exports[${JSON.stringify(name)}];`,
-	}))
+	const entries = exports.map(({ name }) => {
+		const { id, original } = getRenamedFunc(renamedMap, name)
+		return {
+			head: `export let ${original};`,
+			body: `${original} = $exports[${JSON.stringify(id)}];`,
+		}
+	})
 
 	return {
 		head: entries.map(v => v.head).join('\n'),
@@ -55,19 +78,39 @@ const makeExports = (
 
 const generateWasmModule = async (path: string): Promise<string> => {
 	const mod = await readFile(path).then(WebAssembly.compile)
-	const imp = makeImports(WebAssembly.Module.imports(mod))
-	const exp = makeExports(WebAssembly.Module.exports(mod))
+	const renamedMap = await readFile(path + '.renamed.json', 'utf8').then(
+		v => {
+			const json = JSON.parse(v) as unknown
+			if (
+				typeof json === 'object' &&
+				json != null &&
+				'version' in json &&
+				json.version === 'xnuk-r1'
+			) {
+				return json as unknown as RenamedMap
+			}
+			return null
+		},
+		() => null,
+	)
+	const imp = makeImports(WebAssembly.Module.imports(mod), renamedMap)
+	const exp = makeExports(WebAssembly.Module.exports(mod), renamedMap)
 
 	return `
 		import $wasm_path from ${JSON.stringify(path)}
 		${imp.head}
 		${exp.head}
 		export const initialized =
-			WebAssembly.instantiateStreaming(fetch($wasm_path), ${imp.body})
-				.then($wasm => {
-					const $exports = $wasm.instance.exports
-					${exp.body}
-				})
+			WebAssembly.instantiateStreaming(
+				fetch(
+					new URL($wasm_path, import.meta.url),
+					{ headers: { accept: 'application/wasm' } }
+				),
+				${imp.body}
+			).then($wasm => {
+				const $exports = $wasm.instance.exports
+				${exp.body}
+			})
 	`
 }
 
@@ -93,7 +136,7 @@ const wasmLoader: ESBuild.Plugin = {
 
 			return {
 				namespace: moduleNamespace,
-				path: await realPath(
+				path: await realpath(
 					isAbsolute(path) ? path : pathJoin(resolveDir, path),
 				),
 			}
@@ -124,7 +167,7 @@ const htmlMinifier: ESBuild.Plugin = {
 	name: 'htmlMinifier',
 	setup(build) {
 		build.onLoad({ filter: /\.html$/ }, async arg => ({
-			contents: trimHtml(await readTextFile(arg.path)),
+			contents: trimHtml(await readFile(arg.path, 'utf8')),
 			watchFiles: [arg.path],
 			loader: 'copy',
 		}))
@@ -137,20 +180,19 @@ const build = async ({
 	minify = true,
 }: {
 	outdir: string
-	port: number
+	port?: number | undefined
 	minify: boolean
 }) => {
-	outdir = pathResolve(outdir)
 	await mkdir(outdir, { recursive: true })
 
 	const context = await ESBuild.context({
 		// always minify html, because of whitespace sensitivity.
 		plugins: [wasmLoader, htmlMinifier],
-		entryPoints: [resolve('src/index.ts'), resolve('src/index.html')],
+		entryPoints: ['web/index.ts', 'web/index.html'],
 		bundle: true,
 		outdir,
 		format: 'esm',
-		target: ['firefox109'],
+		target: ['firefox117'],
 		platform: 'browser',
 		minify,
 		charset: 'utf8',
@@ -176,18 +218,30 @@ const build = async ({
 			console.warn(warn)
 		}
 
-		ESBuild.stop()
+		await context.dispose()
 		if (hasError) return Promise.reject()
 		return () => {}
 	}
 }
 
-if (import.meta.main) {
-	const { outdir, port, minify } = flagParse(Deno.args)
-	if (outdir == null) throw 'Specify outdir to build'
-	build({
-		outdir,
-		port,
-		minify: minify !== 'false' && minify !== false,
-	})
+const flags = () => {
+	const env = process.env
+	const args = process.argv.slice(2)
+
+	return {
+		port: +(env['PORT'] || 0) || undefined,
+		minify: env['NODE_ENV']?.toLowerCase() === 'production',
+		outdir: args.pop(),
+	} as const
 }
+
+const run = () => {
+	const { outdir, port, minify } = flags()
+	if (outdir == null) {
+		console.error('Specify outdir to build')
+		process.exit(1)
+	}
+	build({ outdir, port, minify })
+}
+
+run()

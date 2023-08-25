@@ -9,27 +9,36 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/cache@v3
-      with:
-        path: cache/bin-cache/
-        key: ${{ runner.os }}-binaries-${{ hashFiles('download-linux-x64.sh') }}
-    - uses: actions/cache@v3
-      with:
-        path: cache/deno/
-        key: ${{ runner.os }}-deno-cache-${{ hashFiles('js/deno.lock') }}
-    - uses: actions/cache@v3
-      with:
-        path: |
-          cache/rust/
-          ~/.rustup/
-          ~/.cargo/
-        key: ${{ runner.os }}-cargo-cache-${{ hashFiles('rust/Cargo.lock') }}
+
+    - run: |
+        mkdir -p ~/.local/bin
+        cd ~/.local/bin
+
+        curl https://zyedidia.github.io/eget.sh | sh
+
+        ./eget xnuk/swc-minifier -t 0.2.2
+        ./eget WebAssembly/binaryen -t version_114 --file=wasm-opt
+
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - run: corepack enable
+    - run: pnpm install --frozen-lockfile
+
     - run: rustup default stable
     - run: rustup target add wasm32-unknown-unknown
-    - run: make
+
+    - run: pnpm xtask:setup
+    - run: pnpm wasm:build
+    - run: pnpm web:build
+
+    - run: >
+        swc-minifier --config=swc-minifier.json dist/web/index.js > dist/web/index.min.js &&
+        mv dist/web/index.min.js dist/web/index.js
+
     - uses: actions/upload-pages-artifact@v1
       with:
-        path: cache/js/
+        path: dist/web/
+
   deploy:
     needs: build
     permissions:

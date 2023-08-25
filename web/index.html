@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>kime web playground</title>
+		<script type="module" src="./index.js"></script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			main {
+				display: grid;
+				grid-template:
+					'config scratchpad' 1fr
+					'error  scratchpad' min-content
+					/ 1fr 2fr;
+
+				min-height: 100vh;
+				gap: 16px;
+				padding: 16px;
+			}
+
+			@media (max-aspect-ratio: 1/1) {
+				main {
+					grid-template:
+						'config' 1fr
+						'error' min-content
+						'scratchpad' 2fr
+						/ 1fr;
+				}
+			}
+
+			textarea {
+				resize: none;
+			}
+
+			#error {
+				grid-area: error;
+				font-family: monospace;
+				display: block;
+			}
+
+			#error:empty {
+				display: none;
+			}
+
+			#error:not(:empty) {
+				border: 2px dashed red;
+				padding: 4px;
+			}
+
+			#config {
+				grid-area: config;
+				display: flex;
+				flex-grow: 1;
+				font-family: monospace;
+			}
+
+			#scratchpad {
+				grid-area: scratchpad;
+				font-family: sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<textarea
+				id="config"
+				placeholder="config"
+				aria-errormessage="error"
+				spellcheck="false"
+			></textarea>
+			<div id="error"></div>
+			<textarea id="scratchpad" placeholder="아무거나 치세요"></textarea>
+		</main>
+	</body>
+</html>

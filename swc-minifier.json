@@ -1,0 +1,8 @@
+{
+	"mangle_prop": { "regex": "^__" },
+	"global_def": {
+		"typeof TextDecoder": "\"object\"",
+		"typeof TextEncoder": "\"object\"",
+		"module.require": "null"
+	}
+}

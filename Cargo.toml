@@ -1,0 +1,11 @@
+[workspace]
+members = ["kime-web", "xtask"]
+
+[profile.release]
+opt-level = 'z'
+overflow-checks = false
+panic = 'abort'
+# strip = 'debuginfo'
+strip = true
+lto = true
+codegen-units = 1
