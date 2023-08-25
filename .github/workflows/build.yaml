@@ -10,6 +10,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry/
+          ~/.cargo/git/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.local/share/pnpm
+          ~/.cache/pnpm
+        key: ${{ runner.os }}-pnpm-$${{ hashFiles('**/pnpm-lock.yaml') }}
+
     - run: |
         mkdir -p ~/.local/bin
         cd ~/.local/bin
