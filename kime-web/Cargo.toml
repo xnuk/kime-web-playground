@@ -15,7 +15,7 @@ gloo-events = '0.2.0'
 wee_alloc = '0.4.5'
 
 [dependencies.serde]
-version = '1.0.185'
+version = '1.0.188'
 features = ['derive']
 
 [dependencies.kime-engine-core]
