@@ -1,4 +1,5 @@
-import { install, initialized } from 'kime-web'
+import { install, initialized, type MountedIME } from 'kime-web'
+import { importUrl, parseUrl } from './layout-from-url.ts'
 
 const configInput = document.getElementById('config') as HTMLTextAreaElement
 const textInput = document.getElementById('scratchpad') as HTMLTextAreaElement
@@ -87,15 +88,56 @@ const instantiate = (config: string) => {
 	}
 }
 
-initialized.then(() => {
-	let instance = instantiate(configInput.value)
+const reload = (() => {
+	let instance = null as null | MountedIME
+	let ready = false
 
-	configInput.addEventListener('input', () => {
-		if (instance) {
+	const reloader = () => {
+		if (!ready) return
+		if (instance != null) {
 			instance.free()
 		}
 		instance = instantiate(configInput.value)
+	}
+
+	initialized.then(() => {
+		ready = true
+		reloader()
 	})
+
+	return reloader
+})()
+
+const debounced = <F extends (...args: any[]) => any>(
+	func: F,
+	delay: number = 50,
+) => {
+	let timeout = setTimeout(() => {})
+
+	return (...args: Parameters<F>) => {
+		clearTimeout(timeout)
+		timeout = setTimeout(() => func(...args), delay)
+	}
+}
+
+const fetcher = debounced((url: URL, value: string) => {
+	importUrl(url)
+		.then(config => {
+			if (configInput.value != value) return
+			configInput.value = config
+			errorSlot.textContent = ''
+		})
+		.catch(() => {
+			errorSlot.textContent = `Failed to fetch ${url}.`
+		})
+}, 500)
+
+configInput.addEventListener('input', () => {
+	const url = parseUrl(configInput.value)
+	if (url == null) return reload()
+
+	errorSlot.textContent = `Fetching ${url}...`
+	fetcher(url, configInput.value)
 })
 
 textInput.addEventListener('kimeinputcategorychange', e => {
