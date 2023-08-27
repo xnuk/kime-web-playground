@@ -156,11 +156,8 @@ impl Engine {
 			(before, after)
 		};
 
-		let commit = self.engine.commit_str().to_string();
-		if !commit.is_empty() {
-			self.engine.clear_commit();
-		}
-		let commit = JsString::from(&commit as &str);
+		let commit = JsString::from(self.engine.commit_str());
+		self.engine.clear_commit();
 
 		let preedit = self.engine.preedit_str();
 		let preedit = JsString::from(preedit);

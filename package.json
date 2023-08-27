@@ -7,7 +7,7 @@
 		"wasm:build": "cargo xtask pack --verbose",
 		"wasm:dev": "cargo xtask pack --watch --verbose",
 		"web:dev": "esbuild build.ts --outfile=.build.js && PORT=8080 node .build.js ./dist/web",
-		"web:build": "esbuild build.ts --outfile=.build.js && NODE_ENV=production node .build.js ./dist/web",
+		"web:build": "esbuild build.ts --mangle-props='^__' --outfile=.build.js && NODE_ENV=production node .build.js ./dist/web",
 		"xtask:setup": "cargo build -p xtask --release --locked",
 		"build": "pnpm wasm:build && pnpm web:build"
 	},
