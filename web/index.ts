@@ -7,6 +7,20 @@ const textInput = document.getElementById('scratchpad') as HTMLTextAreaElement
 const errorSlot = document.getElementById('error') as HTMLDivElement
 const status = document.getElementById('status') as HTMLDivElement
 
+configInput.placeholder = `# Kime 설정
+engine:
+  hangul:
+    layout: mylayout
+  # ...
+
+layouts:
+  mylayout:
+    Q: '$ㅅ$ㅒ'
+    # ...
+
+# 또는 파일 드래그 앤 드롭
+# 또는 https:// 로 시작하는 URL 붙여넣기`
+
 const instantiate = (config: string) => {
 	try {
 		const ret = install(config, textInput)
