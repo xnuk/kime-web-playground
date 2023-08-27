@@ -94,8 +94,10 @@ configInput.addEventListener('input', () => {
 
 textInput.addEventListener('kimeinputcategorychange', e => {
 	const category = (e as any).detail as 'latin' | 'hangul'
-	if (status.textContent !== category) {
-		status.textContent = category
+	const categoryText = category === 'hangul' ? '한글' : category
+
+	if (status.textContent !== categoryText) {
+		status.textContent = categoryText
 		status.animate([{ opacity: 0.75, display: 'block' }, { opacity: 0 }], {
 			duration: 2000,
 			iterations: 1,
