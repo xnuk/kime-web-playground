@@ -149,7 +149,6 @@ impl Engine {
 		let (start, end) = input.selection_range().unwrap_or_default();
 
 		let (before, after) = {
-			// TODO: consider UTF-16 characters are one char
 			let text = input.value();
 			let before = text.slice(0, start);
 			let after = text.slice(end, text.length());
@@ -159,10 +158,7 @@ impl Engine {
 		let commit = JsString::from(self.engine.commit_str());
 		self.engine.clear_commit();
 
-		let preedit = self.engine.preedit_str();
-		let preedit = JsString::from(preedit);
-
-		// new_value.append(&mut after);
+		let preedit = JsString::from(self.engine.preedit_str());
 
 		let new_start = start + commit.length();
 		let new_end = new_start + preedit.length();
