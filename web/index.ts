@@ -1,5 +1,6 @@
 import { install, initialized, type MountedIME } from 'kime-web'
 import { importUrl, parseUrl } from './layout-from-url.ts'
+import { installDrop } from './dropper.ts'
 
 const configInput = document.getElementById('config') as HTMLTextAreaElement
 const textInput = document.getElementById('scratchpad') as HTMLTextAreaElement
@@ -86,6 +87,11 @@ textInput.addEventListener('kimeinputcategorychange', e => {
 			easing: 'ease-in',
 		})
 	}
+})
+
+installDrop(configInput, text => {
+	configInput.value = text
+	reload()
 })
 
 declare global {
