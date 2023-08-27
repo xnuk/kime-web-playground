@@ -12,36 +12,45 @@
 				box-sizing: border-box;
 			}
 
+			html,
+			body {
+				height: 100%;
+			}
+
 			main {
 				display: grid;
-				grid-template:
-					'config scratchpad' 1fr
-					'error  scratchpad' min-content
-					/ 1fr 2fr;
 
-				min-height: 100vh;
+				grid: 1fr / 1fr 2fr;
+
+				height: 100%;
 				gap: 16px;
 				padding: 16px;
 			}
 
 			@media (max-aspect-ratio: 1/1) {
 				main {
-					grid-template:
-						'config' 1fr
-						'error' min-content
-						'scratchpad' 2fr
-						/ 1fr;
+					grid: 1fr 2fr / 1fr;
 				}
 			}
 
+			section {
+				display: flex;
+				flex-flow: column;
+				gap: 16px;
+			}
+
 			textarea {
+				flex-grow: 1;
 				resize: none;
 			}
 
+			#config,
 			#error {
-				grid-area: error;
 				font-family: monospace;
-				display: block;
+			}
+
+			#scratchpad {
+				font-family: sans-serif;
 			}
 
 			#error:empty {
@@ -53,20 +62,9 @@
 				padding: 4px;
 			}
 
-			#config {
-				grid-area: config;
-				display: flex;
-				flex-grow: 1;
-				font-family: monospace;
-			}
-
-			#scratchpad {
-				grid-area: scratchpad;
-				font-family: sans-serif;
-			}
-
 			#status {
-				position: fixed;
+				position: absolute;
+				z-index: 1;
 				top: 50vh;
 				left: 50vw;
 				transform: translate(-50%, -50%);
@@ -84,18 +82,22 @@
 	</head>
 	<body>
 		<main>
-			<textarea
-				id="config"
-				aria-errormessage="error"
-				spellcheck="false"
-			></textarea>
-			<div id="error"></div>
-			<textarea
-				id="scratchpad"
-				placeholder="아무거나 치세요"
-				autofocus
-			></textarea>
-			<div id="status" role="status" aria-live="polite"></div>
+			<section>
+				<textarea
+					id="config"
+					aria-errormessage="error"
+					spellcheck="false"
+				></textarea>
+			</section>
+			<section>
+				<div id="error"></div>
+				<textarea
+					id="scratchpad"
+					placeholder="아무거나 치세요"
+					autofocus
+				></textarea>
+			</section>
 		</main>
+		<div id="status" role="status" aria-live="polite"></div>
 	</body>
 </html>
