@@ -77,6 +77,7 @@ const fetcher = debounced((url: URL, value: string) => {
 			if (configInput.value != value) return
 			configInput.value = config
 			errorSlot.textContent = ''
+			reload()
 		})
 		.catch(() => {
 			errorSlot.textContent = `Failed to fetch ${url}.`
