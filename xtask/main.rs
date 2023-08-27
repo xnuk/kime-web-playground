@@ -34,12 +34,15 @@ struct Runner {
 	pack_candidates: HashMap<String, Package>,
 }
 
+macro_rules! into_array {
+	($($e:expr),+ $(,)?) => {[$(Into::into($e)),+]}
+}
+
 impl Runner {
 	fn cmd<T, U>(&self, cmd: T, args: U) -> duct::Expression
 	where
 		T: duct::IntoExecutablePath,
-		U::Item: Into<OsString>,
-		U: IntoIterator,
+		U: IntoIterator<Item = OsString>,
 	{
 		duct::cmd(cmd, args).dir(self.cwd.clone())
 	}
@@ -215,11 +218,11 @@ impl PackCmd {
 			eprintln!("[xtask pack] cargo building {}", package.id);
 		}
 
-		let cargo_options = [
-			"build".to_string(),
-			"--lib".to_string(),
-			"--locked".to_string(),
-			"--release".to_string(),
+		let cargo_options = into_array![
+			"build",
+			"--lib",
+			"--locked",
+			"--release",
 			format!("--target={TRIPLE}"),
 			format!("--package={}", package.name),
 		];
@@ -244,18 +247,26 @@ impl PackCmd {
 
 		let out_dir = runner.resolve(&self.out_dir);
 
-		wasm_bindgen_cli_support::Bindgen::new()
-			.input_path(wasm_path)
-			.out_name(package_name)
-			.debug(false)
-			.demangle(true)
-			.keep_debug(false)
-			.typescript(true)
-			.bundler(true)?
-			.remove_name_section(true)
-			.remove_producers_section(true)
-			.omit_default_module_path(true)
-			.generate(&out_dir)
+		runner
+			.cmd(
+				"wasm-bindgen",
+				into_array![
+					"--out-dir",
+					out_dir,
+					"--out-name",
+					package_name,
+					"--typescript",
+					"--target=bundler",
+					"--remove-name-section",
+					"--remove-producers-section",
+					"--omit-default-module-path",
+					"--encode-into=always",
+					wasm_path, // input path
+				],
+			)
+			.run()?;
+
+		Ok(())
 	}
 
 	fn wasm_opt(&mut self, runner: &Runner) -> anyhow::Result<()> {
@@ -271,14 +282,14 @@ impl PackCmd {
 		let output = runner
 			.cmd(
 				"wasm-opt",
-				[
-					&OsString::from("--quiet"),
-					&OsString::from("--fast-math"),
-					&OsString::from("--minify-imports-and-exports-and-modules"),
-					&OsString::from("-O"),
-					path.as_os_str(),
-					&OsString::from("-o"),
-					path.as_os_str(),
+				into_array![
+					"--quiet",
+					"--fast-math",
+					"--minify-imports-and-exports-and-modules",
+					"-O",
+					&path,
+					"-o",
+					&path,
 				],
 			)
 			.read()?;

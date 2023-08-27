@@ -4,11 +4,11 @@
 	"type": "module",
 	"packageManager": "pnpm@8.6.12",
 	"scripts": {
-		"wasm:build": "cargo xtask pack --verbose",
-		"wasm:dev": "cargo xtask pack --watch --verbose",
+		"wasm:build": "cargo run --package=xtask pack --verbose",
+		"wasm:dev": "cargo run --package=xtask pack --watch --verbose",
 		"web:dev": "esbuild build.ts --outfile=.build.js && PORT=8080 node .build.js ./dist/web",
 		"web:build": "esbuild build.ts --mangle-props='^__' --outfile=.build.js && NODE_ENV=production node .build.js ./dist/web",
-		"xtask:setup": "cargo build -p xtask --release --locked",
+		"xtask:setup": "cargo build --package=xtask --locked",
 		"build": "pnpm wasm:build && pnpm web:build"
 	},
 	"devDependencies": {

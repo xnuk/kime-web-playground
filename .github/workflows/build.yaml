@@ -31,8 +31,9 @@ jobs:
 
         curl https://zyedidia.github.io/eget.sh | sh
 
-        ./eget xnuk/swc-minifier -t 0.2.2
-        ./eget WebAssembly/binaryen -t version_114 --file=wasm-opt
+        ./eget xnuk/swc-minifier --tag=0.2.2
+        ./eget WebAssembly/binaryen --tag=version_114 --file=wasm-opt
+        ./eget rustwasm/wasm-bindgen --tag=0.2.87
 
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
