@@ -1,10 +1,23 @@
+export const isYamlPath = (s: string | undefined | null) =>
+	/\.ya?ml/.test(s || '')
+
 const preventIfFiles = (e: DragEvent) => {
 	const isFile = e.dataTransfer?.types.includes('Files') ?? false
 	isFile && e.preventDefault()
 	return isFile
 }
 
-export const installDrop = (
+const loadFile = (files: Iterable<File>) => {
+	for (const file of files) {
+		if (isYamlPath(file.name)) {
+			return file.text()
+		}
+	}
+
+	return Promise.reject()
+}
+
+export const installFileDrop = (
 	el: HTMLElement,
 	onLoad: (value: string) => void,
 ) => {
@@ -18,11 +31,6 @@ export const installDrop = (
 		const files = e.dataTransfer?.files
 		if (files == null) return
 
-		for (const file of files) {
-			if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-				file.text().then(onLoad, () => {})
-				break
-			}
-		}
+		loadFile(files).then(onLoad, () => {})
 	})
 }

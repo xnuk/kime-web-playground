@@ -1,6 +1,6 @@
 import { install, initialized, type MountedIME } from 'kime-web'
 import { importUrl, parseUrl } from './layout-from-url.ts'
-import { installDrop } from './dropper.ts'
+import { installFileDrop, isYamlPath } from './filedrop.ts'
 
 const configInput = document.getElementById('config') as HTMLTextAreaElement
 const textInput = document.getElementById('scratchpad') as HTMLTextAreaElement
@@ -86,10 +86,7 @@ const fetcher = debounced((url: URL, value: string) => {
 
 configInput.addEventListener('input', () => {
 	const url = parseUrl(configInput.value)
-	if (
-		url == null ||
-		!/^ya?ml$/.test(/* extension */ url.pathname.split('.').pop() || '')
-	) {
+	if (url == null || !isYamlPath(url.pathname)) {
 		return reload()
 	}
 
@@ -111,7 +108,7 @@ textInput.addEventListener('kimeinputcategorychange', e => {
 	}
 })
 
-installDrop(configInput, text => {
+installFileDrop(configInput, text => {
 	configInput.value = text
 	reload()
 })
