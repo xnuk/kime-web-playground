@@ -1,7 +1,13 @@
-import * as ESBuild from 'esbuild'
-
-import { readFile, mkdir, realpath } from 'node:fs/promises'
-import { isAbsolute, join as pathJoin, dirname } from 'node:path'
+import type { Plugin } from 'esbuild'
+import {
+	isAbsolute,
+	pathJoin,
+	dirname,
+	realPath,
+	readFile,
+	readTextFile,
+} from './fs.ts'
+import { fileUrl } from './url.ts'
 
 interface RenamedMap {
 	readonly module: Readonly<Record<string, string>>
@@ -78,7 +84,7 @@ const makeExports = (
 
 const generateWasmModule = async (path: string): Promise<string> => {
 	const mod = await readFile(path).then(WebAssembly.compile)
-	const renamedMap = await readFile(path + '.renamed.json', 'utf8').then(
+	const renamedMap = await readTextFile(path + '.renamed.json').then(
 		v => {
 			const json = JSON.parse(v) as unknown
 			if (
@@ -114,11 +120,7 @@ const generateWasmModule = async (path: string): Promise<string> => {
 	`
 }
 
-// const trace = <T extends unknown>(x: T, comment: string = 'trace'): T => (
-// 	console.log(comment, x), x
-// )
-
-const wasmLoader: ESBuild.Plugin = {
+export const wasmLoader: Plugin = {
 	name: 'wasm-loader',
 	setup(build) {
 		const moduleNamespace = 'wasm-module'
@@ -136,7 +138,7 @@ const wasmLoader: ESBuild.Plugin = {
 
 			return {
 				namespace: moduleNamespace,
-				path: await realpath(
+				path: await realPath(
 					isAbsolute(path) ? path : pathJoin(resolveDir, path),
 				),
 			}
@@ -157,91 +159,3 @@ const wasmLoader: ESBuild.Plugin = {
 		)
 	},
 }
-const trimHtml = (html: string) =>
-	html
-		.trim()
-		.replace(/\r?\n\s*/g, '\n')
-		.replace(/>\n</g, '><')
-
-const htmlMinifier: ESBuild.Plugin = {
-	name: 'htmlMinifier',
-	setup(build) {
-		build.onLoad({ filter: /\.html$/ }, async arg => ({
-			contents: trimHtml(await readFile(arg.path, 'utf8')),
-			watchFiles: [arg.path],
-			loader: 'copy',
-		}))
-	},
-}
-
-const build = async ({
-	outdir,
-	port,
-	minify = true,
-}: {
-	outdir: string
-	port?: number | undefined
-	minify: boolean
-}) => {
-	await mkdir(outdir, { recursive: true })
-
-	const context = await ESBuild.context({
-		// always minify html, because of whitespace sensitivity.
-		plugins: [wasmLoader, htmlMinifier],
-		entryPoints: ['web/index.ts', 'web/index.html'],
-		bundle: true,
-		outdir,
-		format: 'esm',
-		target: ['firefox117'],
-		platform: 'browser',
-		minify,
-		charset: 'utf8',
-		define: { SERVE: (port != null) + '' },
-		assetNames: '[name]',
-		loader: { '.html': 'copy' },
-	})
-
-	if (port != null) {
-		const served = await context.serve({ port })
-		console.log(`running at ${served.host}:${served.port}`)
-		await context.watch()
-		return context.dispose.bind(context)
-	} else {
-		const result = await context.rebuild()
-		const hasError = result.errors.length > 0 || result.warnings.length > 0
-
-		for (const error of result.errors) {
-			console.error(error)
-		}
-
-		for (const warn of result.warnings) {
-			console.warn(warn)
-		}
-
-		await context.dispose()
-		if (hasError) return Promise.reject()
-		return () => {}
-	}
-}
-
-const flags = () => {
-	const env = process.env
-	const args = process.argv.slice(2)
-
-	return {
-		port: +(env['PORT'] || 0) || undefined,
-		minify: env['NODE_ENV']?.toLowerCase() === 'production',
-		outdir: args.pop(),
-	} as const
-}
-
-const run = () => {
-	const { outdir, port, minify } = flags()
-	if (outdir == null) {
-		console.error('Specify outdir to build')
-		process.exit(1)
-	}
-	build({ outdir, port, minify })
-}
-
-run()

@@ -43,9 +43,7 @@ jobs:
     - run: rustup default stable
     - run: rustup target add wasm32-unknown-unknown
 
-    - run: pnpm xtask:setup
-    - run: pnpm wasm:build
-    - run: pnpm web:build
+    - run: pnpm run build
 
     - run: >
         swc-minifier --config=swc-minifier.json dist/web/index.js > dist/web/index.min.js &&

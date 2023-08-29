@@ -2,14 +2,10 @@
 	"name": "kime-web-playground",
 	"version": "0.1.0",
 	"type": "module",
-	"packageManager": "pnpm@8.6.12",
+	"packageManager": "pnpm@8.7.0",
 	"scripts": {
-		"wasm:build": "cargo run --package=xtask pack --verbose",
-		"wasm:dev": "cargo run --package=xtask pack --watch --verbose",
-		"web:dev": "esbuild build.ts --outfile=.build.js && PORT=8080 node .build.js ./dist/web",
-		"web:build": "esbuild build.ts --mangle-props='^__' --outfile=.build.js && NODE_ENV=production node .build.js ./dist/web",
-		"xtask:setup": "cargo build --package=xtask --locked",
-		"build": "pnpm wasm:build && pnpm web:build"
+		"build": "esbuild scripts/build.ts --bundle --format=esm --platform=node --external:esbuild --outfile=dist/build.js && node dist/build.js",
+		"dev": "pnpm build 8080"
 	},
 	"devDependencies": {
 		"@types/node": "^20.5.6",
