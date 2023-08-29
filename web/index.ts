@@ -86,7 +86,12 @@ const fetcher = debounced((url: URL, value: string) => {
 
 configInput.addEventListener('input', () => {
 	const url = parseUrl(configInput.value)
-	if (url == null) return reload()
+	if (
+		url == null ||
+		!/^ya?ml$/.test(/* extension */ url.pathname.split('.').pop() || '')
+	) {
+		return reload()
+	}
 
 	errorSlot.textContent = `Fetching ${url}...`
 	fetcher(url, configInput.value)
