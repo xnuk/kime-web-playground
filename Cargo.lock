@@ -197,7 +197,7 @@ dependencies = [
 [[package]]
 name = "kime-engine-backend"
 version = "0.1.0"
-source = "git+https://github.com/xnuk/kime?branch=core-features#22ab443acc8f61d99d5d1cfc6483d607c12aa728"
+source = "git+https://github.com/Riey/kime?branch=develop#9dd6411bc6ef9662a33a621fe39da9d4fe95cb82"
 dependencies = [
  "bitflags",
  "enum-map",
@@ -209,7 +209,7 @@ dependencies = [
 [[package]]
 name = "kime-engine-backend-hangul"
 version = "0.1.0"
-source = "git+https://github.com/xnuk/kime?branch=core-features#22ab443acc8f61d99d5d1cfc6483d607c12aa728"
+source = "git+https://github.com/Riey/kime?branch=develop#9dd6411bc6ef9662a33a621fe39da9d4fe95cb82"
 dependencies = [
  "enumset",
  "kime-engine-backend",
@@ -223,7 +223,7 @@ dependencies = [
 [[package]]
 name = "kime-engine-backend-latin"
 version = "0.1.0"
-source = "git+https://github.com/xnuk/kime?branch=core-features#22ab443acc8f61d99d5d1cfc6483d607c12aa728"
+source = "git+https://github.com/Riey/kime?branch=develop#9dd6411bc6ef9662a33a621fe39da9d4fe95cb82"
 dependencies = [
  "kime-engine-backend",
  "serde",
@@ -233,7 +233,7 @@ dependencies = [
 [[package]]
 name = "kime-engine-config"
 version = "0.1.0"
-source = "git+https://github.com/xnuk/kime?branch=core-features#22ab443acc8f61d99d5d1cfc6483d607c12aa728"
+source = "git+https://github.com/Riey/kime?branch=develop#9dd6411bc6ef9662a33a621fe39da9d4fe95cb82"
 dependencies = [
  "enum-map",
  "enumset",
@@ -248,7 +248,7 @@ dependencies = [
 [[package]]
 name = "kime-engine-core"
 version = "2.0.0"
-source = "git+https://github.com/xnuk/kime?branch=core-features#22ab443acc8f61d99d5d1cfc6483d607c12aa728"
+source = "git+https://github.com/Riey/kime?branch=develop#9dd6411bc6ef9662a33a621fe39da9d4fe95cb82"
 dependencies = [
  "fontdb",
  "kime-engine-backend",
@@ -264,7 +264,7 @@ dependencies = [
 [[package]]
 name = "kime-run-dir"
 version = "0.1.0"
-source = "git+https://github.com/xnuk/kime?branch=core-features#22ab443acc8f61d99d5d1cfc6483d607c12aa728"
+source = "git+https://github.com/Riey/kime?branch=develop#9dd6411bc6ef9662a33a621fe39da9d4fe95cb82"
 
 [[package]]
 name = "kime-web"

@@ -19,18 +19,18 @@ version = '1.0.188'
 features = ['derive']
 
 [dependencies.kime-engine-core]
-git = 'https://github.com/xnuk/kime'
-branch = 'core-features'
+git = 'https://github.com/Riey/kime'
+branch = 'develop'
 default-features = false
 features = []
 
 [dependencies.kime-engine-backend]
-git = 'https://github.com/xnuk/kime'
-branch = 'core-features'
+git = 'https://github.com/Riey/kime'
+branch = 'develop'
 
 [dependencies.kime-engine-backend-hangul]
-git = 'https://github.com/xnuk/kime'
-branch = 'core-features'
+git = 'https://github.com/Riey/kime'
+branch = 'develop'
 
 [dependencies.web-sys]
 version = '0.3.64'
